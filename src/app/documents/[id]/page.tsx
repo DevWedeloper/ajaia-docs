@@ -41,6 +41,7 @@ export default function DocumentEditor({
       Underline,
     ],
     content: "",
+    immediatelyRender: true,
   });
 
   // 1. Load document
