@@ -54,8 +54,6 @@ export default function DocumentEditor({
       const res = await fetch(`/api/documents/${id}`);
       const data = await res.json();
 
-      console.log("Data loaded", data);
-
       setTitle(data.title ?? "");
 
       if (editor && data.content) {
