@@ -72,7 +72,9 @@ This document lists all deliverables included in the submission and provides qui
 
 Run:
 
-npm run test
+```
+pnpm run test
+```
 
 ---
 
@@ -80,12 +82,14 @@ npm run test
 
 Run:
 
-npm install  
-npm run dev  
+```
+pnpm install  
+pnpm run dev  
+```
 
 If using Turso:
 
-Ensure .env.local contains:
+Ensure .env contains:
 - DATABASE_URL  
 - DATABASE_AUTH_TOKEN  
 
