@@ -15,8 +15,6 @@ export async function GET(
     .where(eq(documents.id, Number(id)))
     .get();
 
-  console.log("GET document", doc);
-
   return NextResponse.json(doc);
 }
 

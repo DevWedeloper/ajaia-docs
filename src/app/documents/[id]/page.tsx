@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
+import { useRef } from "react";
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -20,8 +21,14 @@ export default function DocumentEditor({
 
   const [title, setTitle] = useState("");
   const [loaded, setLoaded] = useState(false);
-  
   const [shareUserId, setShareUserId] = useState("2");
+
+  // ✅ FIX: always hold latest title
+  const titleRef = useRef(title);
+
+  useEffect(() => {
+    titleRef.current = title;
+  }, [title]);
 
   async function shareDoc() {
     await fetch("/api/share", {
@@ -36,10 +43,7 @@ export default function DocumentEditor({
   }
 
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline,
-    ],
+    extensions: [StarterKit, Underline],
     content: "",
     immediatelyRender: true,
   });
@@ -50,27 +54,25 @@ export default function DocumentEditor({
       const res = await fetch(`/api/documents/${id}`);
       const data = await res.json();
 
-      setTitle(data.title ?? "");
-
       console.log("Data loaded", data);
 
+      setTitle(data.title ?? "");
+
       if (editor && data.content) {
-        editor.commands.setContent(
-          JSON.parse(data.content)
-        );
-        console.log("Document loaded", data);
+        try {
+          editor.commands.setContent(JSON.parse(data.content));
+        } catch (err) {
+          console.error("Invalid content JSON", err);
+        }
       }
 
-      console.log("Loaded", data);
       setLoaded(true);
     }
-
-    console.log("Loading document", id);
 
     load();
   }, [editor, id]);
 
-  // 2. Autosave
+  // 2. Autosave (FIXED)
   useEffect(() => {
     if (!editor || !loaded) return;
 
@@ -78,29 +80,25 @@ export default function DocumentEditor({
       await fetch(`/api/documents/${id}`, {
         method: "PUT",
         body: JSON.stringify({
-          title,
-          content: JSON.stringify(
-            editor.getJSON()
-          ),
+          title: titleRef.current, // ✅ always latest
+          content: JSON.stringify(editor.getJSON()),
         }),
       });
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [editor, title, loaded, id]);
+  }, [editor, loaded, id]);
 
   if (!editor) return null;
-
   if (!loaded) return <div>Loading...</div>;
 
   return (
     <>
+      {/* Share bar */}
       <div className="flex gap-2 items-center border p-2">
         <select
           value={shareUserId}
-          onChange={(e) =>
-            setShareUserId(e.target.value)
-          }
+          onChange={(e) => setShareUserId(e.target.value)}
         >
           {USERS.map((u) => (
             <option key={u.id} value={u.id}>
@@ -109,10 +107,7 @@ export default function DocumentEditor({
           ))}
         </select>
 
-        <button
-          onClick={shareDoc}
-          className="border px-3 py-1"
-        >
+        <button onClick={shareDoc} className="border px-3 py-1">
           Share
         </button>
       </div>
@@ -122,40 +117,32 @@ export default function DocumentEditor({
         <input
           className="text-2xl font-bold border p-2 w-full"
           value={title}
-          onChange={(e) =>
-            setTitle(e.target.value)
-          }
+          onChange={(e) => setTitle(e.target.value)}
         />
 
         {/* Toolbar */}
         <div className="flex gap-2 border p-2">
-          <button onClick={() =>
-            editor.chain().focus().toggleBold().run()
-          }>
+          <button onClick={() => editor.chain().focus().toggleBold().run()}>
             Bold
           </button>
 
-          <button onClick={() =>
-            editor.chain().focus().toggleItalic().run()
-          }>
+          <button onClick={() => editor.chain().focus().toggleItalic().run()}>
             Italic
           </button>
 
-          <button onClick={() =>
-            editor.chain().focus().toggleUnderline().run()
-          }>
+          <button onClick={() => editor.chain().focus().toggleUnderline().run()}>
             Underline
           </button>
 
-          <button onClick={() =>
-            editor.chain().focus().toggleBulletList().run()
-          }>
+          <button
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+          >
             • List
           </button>
 
-          <button onClick={() =>
-            editor.chain().focus().toggleOrderedList().run()
-          }>
+          <button
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          >
             1. List
           </button>
         </div>
