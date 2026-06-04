@@ -8,13 +8,13 @@ export async function GET(req: Request) {
   const userId = getUserId(req);
 
   // Owned docs
-  const owned = db
+  const owned = await db
     .select()
     .from(documents)
     .where(eq(documents.ownerId, userId))
     .all();
 
-  const sharedRows = db
+  const sharedRows = await db
     .select()
     .from(shares)
     .where(eq(shares.userId, userId))
@@ -23,7 +23,7 @@ export async function GET(req: Request) {
   const sharedIds = sharedRows.map(r => r.documentId);
 
   const shared = sharedIds.length
-    ? db
+    ? await db
         .select()
         .from(documents)
         .where(inArray(documents.id, sharedIds))
@@ -35,12 +35,11 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const userId = getUserId(req);
-
   const body = await req.json();
 
   const title = body.title ?? "Untitled Document";
 
-  const result = db
+  const result = await db
     .insert(documents)
     .values({
       title,
