@@ -49,7 +49,7 @@ export default function DocumentEditor({
       const res = await fetch(`/api/documents/${id}`);
       const data = await res.json();
 
-      setTitle(data.title);
+      setTitle(data.title ?? "");
 
       if (editor && data.content) {
         editor.commands.setContent(
