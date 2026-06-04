@@ -9,11 +9,13 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const doc = db
+  const doc = await db
     .select()
     .from(documents)
     .where(eq(documents.id, Number(id)))
     .get();
+
+  console.log("GET document", doc);
 
   return NextResponse.json(doc);
 }
@@ -26,7 +28,7 @@ export async function PUT(
 
   const body = await req.json();
 
-  const updated = db
+  const updated = await db
     .update(documents)
     .set({
       title: body.title,

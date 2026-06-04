@@ -52,14 +52,20 @@ export default function DocumentEditor({
 
       setTitle(data.title ?? "");
 
+      console.log("Data loaded", data);
+
       if (editor && data.content) {
         editor.commands.setContent(
           JSON.parse(data.content)
         );
+        console.log("Document loaded", data);
       }
 
+      console.log("Loaded", data);
       setLoaded(true);
     }
+
+    console.log("Loading document", id);
 
     load();
   }, [editor, id]);

@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const { documentId, userId } = body;
 
   // Prevent duplicate sharing
-  const existing = db
+  const existing = await db
     .select()
     .from(shares)
     .where(
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     .get();
 
   if (!existing) {
-    db.insert(shares).values({
+    await db.insert(shares).values({
       documentId,
       userId,
     }).run();

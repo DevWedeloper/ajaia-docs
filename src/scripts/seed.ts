@@ -1,7 +1,7 @@
 import { db } from "../db/db";
 import { users } from "../db/schema";
 
-db.insert(users).values([
+await db.insert(users).values([
   {
     id: 1,
     name: "Alice",
