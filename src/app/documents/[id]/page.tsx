@@ -77,7 +77,7 @@ export default function DocumentEditor({
           ),
         }),
       });
-    }, 4000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [editor, title, loaded, id]);
